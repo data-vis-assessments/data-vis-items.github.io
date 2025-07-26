@@ -59,18 +59,16 @@ def _():
 
 @app.cell
 def _(mo, pd):
-    current_dir = os.path.dirname(os.path.abspath(__file__))
-    data_dir = os.path.join(current_dir, 'public')
+    base_url = "https://raw.githubusercontent.com/your-username/your-repo/main/public/"
     files = ['ARTIST.csv', 'NAAL.csv', 'merk2020.csv', 'rodrigues2024.csv']
     dataframes = []
 
     for csv_file in files:
-        table_name = csv_file.rsplit(".", 1)[0]
-        print(f"Loading {csv_file} as '{table_name}'")
-
-        path = f'{data_dir}/{csv_file}'
-        df = pd.read_csv(path)
+        url = f"{base_url}{csv_file}"
+        print(f"Loading {csv_file}")
+        df = pd.read_csv(url)
         dataframes.append(df)
+    
     return (dataframes,)
 
 
