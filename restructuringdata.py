@@ -59,7 +59,7 @@ def _():
 
 @app.cell
 def _(mo, pd):
-    base_url = "https://raw.githubusercontent.com/your-username/your-repo/main/public/"
+    base_url = "https://github.com/data-vis-assessments/data-vis-items.github.io/blob/main/public/"
     files = ['ARTIST.csv', 'NAAL.csv', 'merk2020.csv', 'rodrigues2024.csv']
     dataframes = []
 
