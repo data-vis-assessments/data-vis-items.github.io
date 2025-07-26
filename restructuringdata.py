@@ -26,12 +26,11 @@ def _(pd):
     
     for test_path in test_paths:
         try:
-            print(f"🔍 Trying path: {test_path}")
             df = pd.read_csv(test_path)
-            print(f"✅ Success with {test_path}: {df.shape}")
+            mo.md(f"✅ Success with {test_path}: {df.shape}")
             break
         except Exception as e:
-            print(f"❌ Failed with {test_path}: {e}")
+            mo.md(f"❌ Failed with {test_path}: {e}")
     
     return ()
 
