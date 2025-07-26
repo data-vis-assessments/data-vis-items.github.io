@@ -16,22 +16,20 @@ def _():
     return alt, ast, mo, pd, re
 
 ##TESTING
-def _(pd):
-    # Test different path formats
-    test_paths = [
-        'public/ARTIST.csv',           # Direct relative path
-        './public/ARTIST.csv',         # Explicit current dir
-        '/public/ARTIST.csv',          # Absolute from root
-    ]
+@app.cell
+def _(mo, pd):
+    notebook_path = mo.notebook_location()
+    data_dir = f'{notebook_path}/public'
+    csv_file = 'ARTIST.csv'
+    path = f'{data_dir}/{csv_file}'
     
-    for test_path in test_paths:
-        try:
-            df = pd.read_csv(test_path)
-            mo.md(f"✅ Success with {test_path}: {df.shape}")
-            break
-        except Exception as e:
-            mo.md(f"❌ Failed with {test_path}: {e}")
-    
+    mo.md(f"""
+    ### 🔍 URL Construction Debug
+    - **notebook_path:** `{notebook_path}`
+    - **data_dir:** `{data_dir}`
+    - **final_path:** `{path}`
+    - **path_type:** `{type(path)}`
+    """)
     return ()
 
 
