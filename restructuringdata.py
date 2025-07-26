@@ -15,6 +15,26 @@ def _():
     import re
     return alt, ast, mo, pd, re
 
+##TESTING
+def _(pd):
+    # Test different path formats
+    test_paths = [
+        'public/ARTIST.csv',           # Direct relative path
+        './public/ARTIST.csv',         # Explicit current dir
+        '/public/ARTIST.csv',          # Absolute from root
+    ]
+    
+    for test_path in test_paths:
+        try:
+            print(f"🔍 Trying path: {test_path}")
+            df = pd.read_csv(test_path)
+            print(f"✅ Success with {test_path}: {df.shape}")
+            break
+        except Exception as e:
+            print(f"❌ Failed with {test_path}: {e}")
+    
+    return ()
+
 
 @app.cell
 def _(mo):
