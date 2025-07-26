@@ -59,7 +59,8 @@ def _():
 
 @app.cell
 def _(mo, pd):
-    data_dir = './public'
+    current_dir = os.path.dirname(os.path.abspath(__file__))
+    data_dir = os.path.join(current_dir, 'public')
     files = ['ARTIST.csv', 'NAAL.csv', 'merk2020.csv', 'rodrigues2024.csv']
     dataframes = []
 
