@@ -33,6 +33,11 @@ jobs:
       - name: 📄 Export notebook
         run: |
           marimo export html-wasm restructuringdata.py -o output --mode run
+    
+      - name: 📁 Copy data files
+        run: |
+          mkdir -p output/public
+          cp public/*.csv output/public/
           
       - name: 📝 Add .nojekyll file
         run: |
