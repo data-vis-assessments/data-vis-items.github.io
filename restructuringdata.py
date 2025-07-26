@@ -60,7 +60,7 @@ def _():
 @app.cell
 def _(mo, pd):
     notebook_path = mo.notebook_location()
-    data_dir = notebook_path / "public"
+    data_dir = f'{notebook_path}/{public}'
     files = ['ARTIST.csv', 'NAAL.csv', 'merk2020.csv', 'rodrigues2024.csv']
     dataframes = []
 
@@ -68,7 +68,7 @@ def _(mo, pd):
         table_name = csv_file.rsplit(".", 1)[0]
         print(f"Loading {csv_file} as '{table_name}'")
 
-        path = data_dir / csv_file
+        path = f'{data_dir}/{csv_file}'
         df = pd.read_csv(path)
         dataframes.append(df)
     return (dataframes,)
