@@ -59,8 +59,7 @@ def _():
 
 @app.cell
 def _(mo, pd):
-    notebook_path = mo.notebook_location()
-    data_dir = f'{notebook_path}/public'
+    data_dir = './public'
     files = ['ARTIST.csv', 'NAAL.csv', 'merk2020.csv', 'rodrigues2024.csv']
     dataframes = []
 
