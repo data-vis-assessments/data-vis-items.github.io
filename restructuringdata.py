@@ -13,9 +13,9 @@ def _():
     import os
     import ast
     import re
-    return alt, ast, mo, pd, re
+    return alt, ast, mo, np, pd, re
 
-##TESTING
+
 @app.cell
 def _(mo):
     mo.center(mo.md('# Data Viz Explorer'))
@@ -29,7 +29,7 @@ def _():
 
 @app.cell
 def _(mo):
-    mo.center(mo.md('Contactinfo@gmail.com'))
+    mo.center(mo.md('arnavv@stanford.edu, kushinm@stanford.edu, averyyue@stanford.edu'))
     return
 
 
@@ -41,7 +41,7 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    mo.md("""## insert various introductions here?""")
+    mo.md("""## Introduction to the dataset""")
     return
 
 
@@ -59,23 +59,40 @@ def _():
 
 @app.cell
 def _(mo, pd):
-    base_url = "https://raw.githubusercontent.com/data-vis-assessments/data-vis-items.github.io/refs/heads/main/public/"
+    notebook_path = mo.notebook_location()
+    data_dir = notebook_path / "public"
     files = ['ARTIST.csv', 'NAAL.csv', 'merk2020.csv', 'rodrigues2024.csv']
     dataframes = []
 
     for csv_file in files:
-        url = f"{base_url}{csv_file}"
-        print(f"Loading {csv_file}")
-        df = pd.read_csv(url)
+        table_name = csv_file.rsplit(".", 1)[0]
+        print(f"Loading {csv_file} as '{table_name}'")
+
+        path = data_dir / csv_file
+        df = pd.read_csv(path)
         dataframes.append(df)
-    
-    return (dataframes,)
+    return data_dir, dataframes
+
+
+@app.cell
+def _():
+    return
 
 
 @app.cell
 def _(dataframes, pd):
-    concat_dfs = pd.concat(dataframes, ignore_index=True)
+    concat_dfs = pd.concat(dataframes, ignore_index=True).rename(columns={'question_stems':'question'})
     return (concat_dfs,)
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
+    return
 
 
 @app.cell
@@ -93,6 +110,11 @@ def _(concat_dfs):
             if len(parsed) > max_len:
                 max_len = len(parsed)
     return (max_len,)
+
+
+@app.cell
+def _():
+    return
 
 
 @app.cell
@@ -131,14 +153,69 @@ def _():
 
 @app.cell
 def _(concat_dfs_expanded_clean, re):
-    static_columns = ['test_name', 'item_ids', 'graph_types', 'graph_types_ctl', 'graph_url', 'question_stems', 'open_answer']
+    static_columns = ['test_name', 'item_ids', 'graph_types', 'graph_types_ctl', 'graph_url', 'question', 'open_answer']
     flexible_columns = []
     for column in concat_dfs_expanded_clean.columns:
         if re.search(r'^answer_\d+$', column):
             flexible_columns.append(column)
     all_columns = static_columns + flexible_columns
-    concat_dfs_complete = concat_dfs_expanded_clean[all_columns]
+    concat_dfs_new = concat_dfs_expanded_clean[all_columns]
+    return (concat_dfs_new,)
+
+
+@app.cell
+def _(concat_dfs_new, data_dir, pd):
+    remaining_files = ['CALVI.csv', 'GGR.csv', 'VLAT.csv', 'WAN.csv', 'BRBF.csv']
+    remaining_dataframes = [concat_dfs_new]
+
+    for file in remaining_files:
+        name = file.rsplit(".", 1)[0]
+        print(f"Loading {file} as '{name}'")
+
+        rem_path = data_dir / file
+        rem_df = pd.read_csv(rem_path)
+        rem_df = rem_df.drop('Unnamed: 0', axis=1)
+        remaining_dataframes.append(rem_df)
+    return (remaining_dataframes,)
+
+
+@app.cell
+def _(np, pd, remaining_dataframes):
+    def standardize_answer_columns(df):
+        df_copy = df.copy()
+    
+        for i in range(1, 16):
+            col_name = f'answer_{i}'
+            if col_name not in df_copy.columns:
+                df_copy[col_name] = np.nan
+    
+        return df_copy
+
+    standardized_dfs = [standardize_answer_columns(df) for df in remaining_dataframes]
+
+    concat_dfs_complete = pd.concat(standardized_dfs, ignore_index=True)
     return (concat_dfs_complete,)
+
+
+@app.cell
+def _(concat_dfs_complete, pd):
+    #cleaning
+    def standardize_format(value):
+        if pd.isna(value):
+            return value
+        value = str(value).lower()
+        if value == '100 % stacked bar chart':
+            value = '100% stacked bar chart'
+        return value
+
+    concat_dfs_complete['graph_types_ctl'] = concat_dfs_complete['graph_types_ctl'].apply(standardize_format)
+    
+    return
+
+
+@app.cell
+def _():
+    return
 
 
 @app.cell
@@ -163,6 +240,7 @@ def _(
     test_select,
     total_items,
     unique_graphs,
+    unique_tasks,
 ):
     mo.hstack(
         [mo.vstack(
@@ -173,6 +251,7 @@ def _(
                     total_items,
                     no_tests,
                     unique_graphs,
+                    unique_tasks,
                     open_prop
                 ], justify = 'center', align = 'end'
             ),
@@ -182,27 +261,32 @@ def _(
 
 
 @app.cell
-def _(concat_dfs_complete, mo):
+def _(filtered_df2, mo):
     ##buttons
     total_items = mo.stat(
         label="Total items",
         bordered=True,
-        value=f"{len(concat_dfs_complete):,.0f}",
+        value=f"{len(filtered_df2):,.0f}",
     )
     no_tests = mo.stat(
         label="Total assessments",
         bordered=True,
-        value=f"{len(concat_dfs_complete['test_name'].unique()):,.0f}",
+        value=f"{len(filtered_df2['test_name'].unique()):,.0f}",
     )
     unique_graphs = mo.stat(
         label="Unique graphs",
         bordered=True,
-        value=f"{len(concat_dfs_complete['graph_types_ctl'].unique()):,.0f}",
+        value=f"{len(filtered_df2['graph_types_ctl'].unique()):,.0f}",
+    )
+    unique_tasks = mo.stat(
+        label="Unique tasks (xctl)",
+        bordered=True,
+        value=f"{len(filtered_df2['task_types'].unique()):,.0f}",
     )
     open_prop = mo.stat(label = "Proportion open-answer", 
                         bordered = True,
-                        value = f"{(sum(concat_dfs_complete['open_answer'] == 'open-answer')/len(concat_dfs_complete))*100:,.0f}%")
-    return no_tests, open_prop, total_items, unique_graphs
+                        value = f"{(sum(filtered_df2['open_answer'] == 'open-answer')/len(filtered_df2))*100:,.0f}%")
+    return no_tests, open_prop, total_items, unique_graphs, unique_tasks
 
 
 @app.cell
@@ -230,12 +314,18 @@ def _():
 def _(concat_dfs_complete, graph_select, test_select):
     filtered_df1 = concat_dfs_complete[concat_dfs_complete['test_name'].isin(test_select.value)]
     filtered_df2 = filtered_df1[filtered_df1['graph_types_ctl'].isin(graph_select.value)]
-    return (filtered_df2,)
+    start = ['item_ids', 'graph_url', 'open_answer', 'question']
+    for i in range(1, 15):
+        if not filtered_df2[f'answer_{i}'].isna().all():
+            start.append(f'answer_{i}')
+    gen = ['task_types_ctl', 'graph_types_ctl', 'task_types', 'graph_types']
+    display = filtered_df2[start + gen]
+    return display, filtered_df2
 
 
 @app.cell
-def _(filtered_df2, mo):
-    mo.ui.table(filtered_df2, selection=None)
+def _(display, mo):
+    mo.ui.table(display, selection=None)
     return
 
 
@@ -297,7 +387,7 @@ def _(alt, color, xaxis):
         chosen_x = 'test_name'
         chosen_title = 'Assessment name' 
     encodings = {
-        "x": alt.X(chosen_x, sort="-y", title=chosen_title),
+        "x": alt.X(chosen_x, sort="-y", title=chosen_title, axis = alt.Axis(labelAngle=-45)),
         "y": alt.Y("count()", title="Count"),
         "tooltip": ["count()"]
     }
