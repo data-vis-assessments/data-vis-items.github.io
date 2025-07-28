@@ -338,7 +338,7 @@ def _():
 def _(alt, chosen_title, chosen_x, encodings, filtered_df2, mo):
     _bar_chart = (
         alt.Chart(filtered_df2)
-        .mark_bar(color="#2B2083")
+        .mark_bar(color="#2E89D9")
         .encode(**encodings)
     )
     bar_chart = mo.ui.altair_chart(_bar_chart)
