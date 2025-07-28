@@ -67,7 +67,7 @@ def _(mo, pd):
         table_name = csv_file.rsplit(".", 1)[0]
         print(f"Loading {csv_file} as '{table_name}'")
 
-        path = data_dir / csv_file
+        path = data_dir + csv_file
         df = pd.read_csv(path)
         dataframes.append(df)
     return data_dir, dataframes
@@ -171,7 +171,7 @@ def _(concat_dfs_new, data_dir, pd):
         name = file.rsplit(".", 1)[0]
         print(f"Loading {file} as '{name}'")
 
-        rem_path = data_dir / file
+        rem_path = data_dir + file
         rem_df = pd.read_csv(rem_path)
         rem_df = rem_df.drop('Unnamed: 0', axis=1)
         remaining_dataframes.append(rem_df)
