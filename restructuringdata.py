@@ -338,7 +338,7 @@ def _():
 def _(alt, chosen_title, chosen_x, encodings, filtered_df2, mo):
     _bar_chart = (
         alt.Chart(filtered_df2)
-        .mark_bar(color="#2E89D9")
+        .mark_bar(color="#2B2083")
         .encode(**encodings)
     )
     bar_chart = mo.ui.altair_chart(_bar_chart)
@@ -356,8 +356,8 @@ def _(alt, chosen_title, chosen_x, encodings, filtered_df2, mo):
 
 @app.cell
 def _(mo):
-    xaxis = mo.ui.dropdown(options=["Graph type", "Assessment"], label="X-axis", value = 'Graph type')
-    color = mo.ui.dropdown(options=["open-answer", 'None'], label="Encoding", value = 'None')
+    xaxis = mo.ui.dropdown(options=["Graph type", 'Task type', "Assessment"], label="X-axis", value = 'Graph type')
+    color = mo.ui.dropdown(options=["open-answer", 'Graph type', 'Task type', 'None'], label="Encoding", value = 'None')
     return color, xaxis
 
 
@@ -385,30 +385,103 @@ def _(alt, color, xaxis):
     if xaxis.value == 'Assessment':
         chosen_x = 'test_name'
         chosen_title = 'Assessment name' 
+    if xaxis.value == 'Task type':
+        chosen_x = 'task_types'
+        chosen_title = 'Task type'
+
+    tooltip_list = []
+    tooltip_list.append(alt.Tooltip(chosen_x, title=chosen_title))
+    if color.value != 'None':
+        color_field_map = {
+            "open-answer": ("open_answer", "Open Answer"),
+            "Graph type": ("graph_types_ctl", "Graph Type"), 
+            "Task type": ("task_types", "Task Type")
+        }
+    
+        color_field, color_display_title = color_field_map[color.value]
+    
+        tooltip_list.append(alt.Tooltip(color_field, title=color_display_title))
+    
+        # Add descriptive count for the specific segment
+        tooltip_list.append(alt.Tooltip("count()", title=f"Count"))
+    else:
+        # If no color encoding, just show basic count
+        tooltip_list.append(alt.Tooltip("count()", title="Count"))
+
     encodings = {
         "x": alt.X(chosen_x, sort="-y", title=chosen_title, axis = alt.Axis(labelAngle=-45)),
         "y": alt.Y("count()", title="Count"),
-        "tooltip": ["count()"]
+        "tooltip": tooltip_list
     }
+
     if color.value == "open-answer":
+        enc_data = "open_answer"
         encodings["color"] = alt.Color(
-            field="open_answer",
+            field=enc_data,
             type="nominal",
             title=chosen_title,
             scale=alt.Scale(scheme="paired")
         )
-    return chosen_title, chosen_x, encodings
+    if color.value == "Graph type":
+        enc_data = "graph_types_ctl"
+        encodings["color"] = alt.Color(
+            field=enc_data,
+            type="nominal",
+            title=chosen_title,
+            scale=alt.Scale(scheme="paired")
+        )
+    if color.value == "Task type":
+        enc_data = "task_types"
+        encodings["color"] = alt.Color(
+            field=enc_data,
+            type="nominal",
+            title=chosen_title,
+            scale=alt.Scale(scheme="paired")
+        )
+    else:
+        enc_data = ''
+    return chosen_title, chosen_x, enc_data, encodings
 
 
 @app.cell
-def _(bar_chart):
-    bar_chart
+def _(bar_chart, display_type, pie_chart):
+    if display_type.value == 'Bar chart':
+        display_chart = bar_chart
+    else:
+        display_chart = pie_chart
+    display_chart
     return
 
 
 @app.cell
-def _(pie_chart):
-    pie_chart
+def _():
+    ##Descriptive stats
+
+    return
+
+
+@app.cell
+def _(mo):
+    display_type = mo.ui.dropdown(options=["Bar chart", 'Pie chart'], label="Type of display", value = 'Bar chart')
+    show_table = mo.ui.dropdown(options=['True', 'False'], label="Show contingency table?", value = 'False')
+    mo.hstack([display_type, show_table], justify = 'center', gap = 3)
+    return display_type, show_table
+
+
+@app.cell
+def _(chosen_x, color, enc_data, filtered_df2, pd, show_table):
+    if show_table.value == 'True' and color.value != 'None':
+        showing = pd.crosstab(filtered_df2[chosen_x], filtered_df2[enc_data])
+    elif show_table.value == 'True' and color.value == 'None':
+        showing = filtered_df2[chosen_x].value_counts()
+    elif show_table.value == 'False':
+        showing = ''
+    showing
+    return
+
+
+@app.cell
+def _():
     return
 
 
