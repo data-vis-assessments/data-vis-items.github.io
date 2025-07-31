@@ -41,13 +41,25 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    mo.md("""## Introduction to the dataset""")
+    mo.md("""## Introduction to the dashboard""")
     return
 
 
 @app.cell
 def _(mo):
-    mo.md("""This is a collection of data visualization literacy assessments. Definition of dvl? Features of the dashboard: filters, quick stats, graphs. Contact information for cogtools?""")
+    mo.md("""The Data Vis Explorer presents a collection of data visualization literacy assessments. In an age teeming with information, methods to quickly and concisely communicate quantitative data through data visualizations have become increasingly prevalent and important in everyday life. A person's ability to correctly translate these visualizations into the underlying information is data visualization literacy, which can determine successful interpretation of anything from medical charts (Galesic & Garcia-Retamero, 2010) to SAT questions.""")
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md("Over the past decades, researchers have developed a number of assessments to measure a person's data visualization literacy, targeting a wide range of cognitive tasks, contexts, and audiences. However, these assessments are largely created independently, and items from individual tests have only recently started to be compared for similarities. What skills are important to data visualization literacy? What attributes a 'difficult' item from an 'easy' item?")
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md("This dashboard is meant to enable easier comparison of items between assessments. Each item typically consists of a visualization, a question stem, and if multiple-choice, a series of answer choices. The Data Vis Explorer has collected items from nine assessments that have made their items publicly available into one filterable dataframe. Features include the dataframe itself, descriptive statistics, and the option to visualize the filtered dataframe with a contingency table. A data dictionary is available at the end of the dashboard.")
     return
 
 
