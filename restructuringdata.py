@@ -411,7 +411,7 @@ def _(alt, color, xaxis):
         color_field_map = {
             "open-answer": ("open_answer", "Open Answer"),
             "Graph type": ("graph_types_ctl", "Graph Type"), 
-            "Task type": ("task_types", "Task Type")
+            "Task type": ("task_types_ctl", "Task Type")
         }
 
         color_field, color_display_title = color_field_map[color.value]
