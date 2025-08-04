@@ -164,7 +164,7 @@ def _():
 
 @app.cell
 def _(concat_dfs_expanded_clean, re):
-    static_columns = ['test_name', 'item_ids', 'graph_types', 'graph_types_ctl', 'graph_url', 'question', 'open_answer']
+    static_columns = ['test_name', 'item_ids', 'graph_types', 'graph_types_ctl', 'task_types', 'task_types_ctl', 'graph_url', 'question', 'open_answer']
     flexible_columns = []
     for column in concat_dfs_expanded_clean.columns:
         if re.search(r'^answer_\d+$', column):
@@ -290,9 +290,9 @@ def _(filtered_df2, mo):
         value=f"{len(filtered_df2['graph_types_ctl'].unique()):,.0f}",
     )
     unique_tasks = mo.stat(
-        label="Unique tasks (xctl)",
+        label="Unique tasks",
         bordered=True,
-        value=f"{len(filtered_df2['task_types'].unique()):,.0f}",
+        value=f"{len(filtered_df2['task_types_ctl'].unique()):,.0f}",
     )
     open_prop = mo.stat(label = "Proportion open-answer", 
                         bordered = True,
@@ -305,6 +305,7 @@ def _(concat_dfs_complete, mo):
     ##filters
     default_tests = list(concat_dfs_complete['test_name'].unique())
     default_graphs= list(concat_dfs_complete['graph_types_ctl'].unique())
+    default_tasks= list(concat_dfs_complete['task_types'].unique())
     test_select = mo.ui.multiselect(options=concat_dfs_complete['test_name'].unique(),
                                    label = 'Filter tests:',
                                     value = default_tests
@@ -312,6 +313,9 @@ def _(concat_dfs_complete, mo):
     graph_select = mo.ui.multiselect(options=concat_dfs_complete['graph_types_ctl'].unique(),
                                     label = 'Filter graphs:',
                                     value = default_graphs)
+    task_select = mo.ui.multiselect(options=concat_dfs_complete['task_types'].unique(),
+                                    label = 'Filter tasks (og):',
+                                    value = default_tasks)
     ##Another one here?
     return graph_select, test_select
 
@@ -409,11 +413,11 @@ def _(alt, color, xaxis):
             "Graph type": ("graph_types_ctl", "Graph Type"), 
             "Task type": ("task_types", "Task Type")
         }
-    
+
         color_field, color_display_title = color_field_map[color.value]
-    
+
         tooltip_list.append(alt.Tooltip(color_field, title=color_display_title))
-    
+
         # Add descriptive count for the specific segment
         tooltip_list.append(alt.Tooltip("count()", title=f"Count"))
     else:
@@ -443,7 +447,7 @@ def _(alt, color, xaxis):
             scale=alt.Scale(scheme="paired")
         )
     if color.value == "Task type":
-        enc_data = "task_types"
+        enc_data = "task_types_ctl"
         encodings["color"] = alt.Color(
             field=enc_data,
             type="nominal",
@@ -451,7 +455,7 @@ def _(alt, color, xaxis):
             scale=alt.Scale(scheme="paired")
         )
     else:
-        enc_data = ''
+        enc_data = ' '
     return chosen_title, chosen_x, enc_data, encodings
 
 
@@ -487,7 +491,7 @@ def _(chosen_x, color, enc_data, filtered_df2, pd, show_table):
     elif show_table.value == 'True' and color.value == 'None':
         showing = filtered_df2[chosen_x].value_counts()
     elif show_table.value == 'False':
-        showing = ''
+        showing = None
     showing
     return
 
@@ -498,8 +502,63 @@ def _():
 
 
 @app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
 def _(mo):
-    mo.md("""### Data dictionary:""")
+    mo.center(mo.md("""### Data dictionary"""))
     return
 
 
@@ -529,13 +588,25 @@ def _(mo):
 
 @app.cell
 def _(mo):
+    mo.md("""<i> task_types </i>. The assessment's labels used for the item's cognitive task as understood from the assessment material. If no labels are given in the material, the value of this column is None.""")
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md("""<i> graph_types_ctl </i>. Our categorization of the item's cognitive task as understood from viewing the assessment material and matching items with the task coding schema presented in the assessment paper. This may or may not align with the assessment maker's understanding of the item. (i.e. the authors intended an item as "Identify averages", but as this was not in the assessment material, we coded the item as "Identify trends.")""")
+    return
+
+
+@app.cell
+def _(mo):
     mo.md("""<i> graph_url </i>. A link to the visualization used in the item, to be displayed in the table itself""")
     return
 
 
 @app.cell
 def _(mo):
-    mo.md("""<i> question_stems</i>. The question used in the visualization. E.g., 'how many people caught a cold in August, 2019?' or 'Draw a histogram that matches this data.'""")
+    mo.md("""<i> question</i>. The question used in the visualization. E.g., 'how many people caught a cold in August, 2019?' or 'Draw a histogram that matches this data.'""")
     return
 
 
