@@ -204,7 +204,7 @@ def _(np, pd, remaining_dataframes):
 
     standardized_dfs = [standardize_answer_columns(df) for df in remaining_dataframes]
 
-    concat_dfs_complete = pd.concat(standardized_dfs, ignore_index=True)
+    concat_dfs_completed = pd.concat(standardized_dfs, ignore_index=True)
     return (concat_dfs_complete,)
 
 
@@ -219,7 +219,7 @@ def _(concat_dfs_completed, pd):
             value = '100% stacked bar chart'
         return value
 
-    concat_dfs_completed['graph_types_ctl'] = concat_dfs_completed['graph_types_ctl'].apply(standardize_format)
+    concat_dfs_completed1['graph_types_ctl'] = concat_dfs_completed['graph_types_ctl'].apply(standardize_format)
 
     return
 
@@ -255,7 +255,7 @@ def _(concat_dfs_completed):
             print(row['question'])
             print(task)
         return row
-    concat_dfs_complete=concat_dfs_completed.apply(combine_tasks, axis = 1)
+    concat_dfs_complete=concat_dfs_completed1.apply(combine_tasks, axis = 1)
     return (concat_dfs_complete,)
 
 
