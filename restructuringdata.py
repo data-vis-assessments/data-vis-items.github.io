@@ -209,7 +209,7 @@ def _(np, pd, remaining_dataframes):
 
 
 @app.cell
-def _(concat_dfs_complete, pd):
+def _(concat_dfs_completed, pd):
     #cleaning
     def standardize_format(value):
         if pd.isna(value):
@@ -219,8 +219,48 @@ def _(concat_dfs_complete, pd):
             value = '100% stacked bar chart'
         return value
 
-    concat_dfs_complete['graph_types_ctl'] = concat_dfs_complete['graph_types_ctl'].apply(standardize_format)
-    
+    concat_dfs_completed['graph_types_ctl'] = concat_dfs_completed['graph_types_ctl'].apply(standardize_format)
+
+    return
+
+
+@app.cell
+def _(concat_dfs_completed):
+    concat_dfs_completed.columns
+    return
+
+
+@app.cell
+def _(concat_dfs_completed):
+    find_value = ['literacy', 'Suitable', 'Find Extremum', 'retrieve_value', 'Retrieve Value', 'max', 'min', 'level_1',
+                 'find_extremum', 'find_clusters', 'intermediate', 'Understand & use data displays & representations', 'elementary', 'intersection', 'TextSearchExposition', 'Text Search', 'find_anomolies', 'Application, TextSearchExposition, ', 'Text SearchExposition, ']
+    interpret_data = ['reasoning', 'Use statistics', 'Unsuitable', 'trend', 'Understand how to interpret data', 
+                      'Understand data properties', 'Conceptual', 'find_correlations_trends',
+                 'Find Correlations/Trends', 'Make Predictions', 'Application, Text Search']
+    calculate_statistic = ['Aggregate data', 'Aggregate Values', 'Manipulate data', 'average', 'Computation, Text Search', 'trendComp',
+                          'determine_Range']
+    compare_groups = ['make_comparisons', 'comprehensive', 'Understand statistics & psychometrics', 'Summarize & explain data', 'level_2', 'characterize_distribution', 'Make Comparisons', 'level_3']
+
+    def combine_tasks(row):
+        task = row['task_types_ctl']
+        if task in find_value:
+            row['task_types_comb'] = 'find_value'
+        elif task in interpret_data:
+            row['task_types_comb'] = 'interpret_data'
+        elif task in calculate_statistic:
+            row['task_types_comb'] = 'calculate_statistic'
+        elif task in compare_groups:
+            row['task_types_comb'] = 'compare_groups'
+        else:
+            print(row['question'])
+            print(task)
+        return row
+    concat_dfs_complete=concat_dfs_completed.apply(combine_tasks, axis = 1)
+    return (concat_dfs_complete,)
+
+
+@app.cell
+def _():
     return
 
 
@@ -248,21 +288,24 @@ def _(
     mo,
     no_tests,
     open_prop,
+    task_select,
     test_select,
     total_items,
     unique_graphs,
-    unique_tasks,
+    unique_tasks_ctl,
+    unique_tasks_og,
 ):
     mo.hstack(
         [mo.vstack(
-                [mo.md('### Data Filters'), test_select, graph_select]
+                [mo.md('### Data Filters'), test_select, graph_select, task_select]
             ),
             mo.hstack(
                 [
                     total_items,
                     no_tests,
                     unique_graphs,
-                    unique_tasks,
+                    unique_tasks_og,
+                    unique_tasks_ctl,
                     open_prop
                 ], justify = 'center', align = 'end'
             ),
@@ -289,15 +332,27 @@ def _(filtered_df2, mo):
         bordered=True,
         value=f"{len(filtered_df2['graph_types_ctl'].unique()):,.0f}",
     )
-    unique_tasks = mo.stat(
-        label="Unique tasks",
+    unique_tasks_og = mo.stat(
+        label="Unique tasks (original)",
         bordered=True,
         value=f"{len(filtered_df2['task_types_ctl'].unique()):,.0f}",
+    )
+    unique_tasks_ctl = mo.stat(
+        label="Unique tasks (combined)",
+        bordered=True,
+        value=f"{len(filtered_df2['task_types_comb'].unique()):,.0f}",
     )
     open_prop = mo.stat(label = "Proportion open-answer", 
                         bordered = True,
                         value = f"{(sum(filtered_df2['open_answer'] == 'open-answer')/len(filtered_df2))*100:,.0f}%")
-    return no_tests, open_prop, total_items, unique_graphs, unique_tasks
+    return (
+        no_tests,
+        open_prop,
+        total_items,
+        unique_graphs,
+        unique_tasks_ctl,
+        unique_tasks_og,
+    )
 
 
 @app.cell
@@ -305,7 +360,7 @@ def _(concat_dfs_complete, mo):
     ##filters
     default_tests = list(concat_dfs_complete['test_name'].unique())
     default_graphs= list(concat_dfs_complete['graph_types_ctl'].unique())
-    default_tasks= list(concat_dfs_complete['task_types'].unique())
+    default_tasks_ctl= list(concat_dfs_complete['task_types_comb'].unique())
     test_select = mo.ui.multiselect(options=concat_dfs_complete['test_name'].unique(),
                                    label = 'Filter tests:',
                                     value = default_tests
@@ -313,11 +368,11 @@ def _(concat_dfs_complete, mo):
     graph_select = mo.ui.multiselect(options=concat_dfs_complete['graph_types_ctl'].unique(),
                                     label = 'Filter graphs:',
                                     value = default_graphs)
-    task_select = mo.ui.multiselect(options=concat_dfs_complete['task_types'].unique(),
-                                    label = 'Filter tasks (og):',
-                                    value = default_tasks)
+    task_select = mo.ui.multiselect(options=concat_dfs_complete['task_types_comb'].unique(),
+                                    label = 'Filter tasks (comb):',
+                                    value = default_tasks_ctl)
     ##Another one here?
-    return graph_select, test_select
+    return graph_select, task_select, test_select
 
 
 @app.cell
@@ -326,9 +381,20 @@ def _():
 
 
 @app.cell
-def _(concat_dfs_complete, graph_select, test_select):
-    filtered_df1 = concat_dfs_complete[concat_dfs_complete['test_name'].isin(test_select.value)]
-    filtered_df2 = filtered_df1[filtered_df1['graph_types_ctl'].isin(graph_select.value)]
+def _(concat_dfs_complete, graph_select, task_select, test_select):
+    filtered_df1 = concat_dfs_complete
+    if len(test_select.value) > 0:
+        filtered_df1 = concat_dfs_complete[concat_dfs_complete['test_name'].isin(test_select.value)]
+    else:
+        filtered_df1 = concat_dfs_complete
+    if len(task_select.value)> 0:
+        filtered_df1_2 = filtered_df1[filtered_df1['task_types_comb'].isin(task_select.value)]
+    else:
+        filtered_df1_2 = filtered_df1
+    if len(graph_select.value) > 0:
+        filtered_df2 = filtered_df1_2[filtered_df1_2['graph_types_ctl'].isin(graph_select.value)]
+    else: 
+        filtered_df2 = filtered_df1_2 
     start = ['item_ids', 'graph_url', 'open_answer', 'question']
     for i in range(1, 15):
         if not filtered_df2[f'answer_{i}'].isna().all():
@@ -372,8 +438,8 @@ def _(alt, chosen_title, chosen_x, encodings, filtered_df2, mo):
 
 @app.cell
 def _(mo):
-    xaxis = mo.ui.dropdown(options=["Graph type", 'Task type', "Assessment"], label="X-axis", value = 'Graph type')
-    color = mo.ui.dropdown(options=["open-answer", 'Graph type', 'Task type', 'None'], label="Encoding", value = 'None')
+    xaxis = mo.ui.dropdown(options=["Graph type", 'Task type (og)', 'Task type (comb)', "Assessment"], label="X-axis", value = 'Graph type')
+    color = mo.ui.dropdown(options=["open-answer", 'Graph type', 'Task type (og)', 'Task type (comb)', 'None'], label="Encoding", value = 'None')
     return color, xaxis
 
 
@@ -401,9 +467,12 @@ def _(alt, color, xaxis):
     if xaxis.value == 'Assessment':
         chosen_x = 'test_name'
         chosen_title = 'Assessment name' 
-    if xaxis.value == 'Task type':
+    if xaxis.value == 'Task type (og)':
         chosen_x = 'task_types'
-        chosen_title = 'Task type'
+        chosen_title = 'Task type (original)'
+    if xaxis.value == 'Task type (comb)':
+        chosen_x = 'task_types_comb'
+        chosen_title = 'Task type (combined)'
 
     tooltip_list = []
     tooltip_list.append(alt.Tooltip(chosen_x, title=chosen_title))
@@ -411,7 +480,8 @@ def _(alt, color, xaxis):
         color_field_map = {
             "open-answer": ("open_answer", "Open Answer"),
             "Graph type": ("graph_types_ctl", "Graph Type"), 
-            "Task type": ("task_types_ctl", "Task Type")
+            "Task type (og)": ("task_types_ctl", "Task Type (original)"),
+            "Task type (comb)": ("task_types_comb", "Task Type (combined)")
         }
 
         color_field, color_display_title = color_field_map[color.value]
@@ -446,8 +516,16 @@ def _(alt, color, xaxis):
             title=chosen_title,
             scale=alt.Scale(scheme="paired")
         )
-    if color.value == "Task type":
+    if color.value == "Task type (og)":
         enc_data = "task_types_ctl"
+        encodings["color"] = alt.Color(
+            field=enc_data,
+            type="nominal",
+            title=chosen_title,
+            scale=alt.Scale(scheme="paired")
+        )
+    if color.value == "Task type (comb)":
+        enc_data = "task_types_comb"
         encodings["color"] = alt.Color(
             field=enc_data,
             type="nominal",
@@ -564,7 +642,7 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    mo.md("""<i> test_name</i>. The name of the assessment. Current assessments in dataframe: ARTIST, merk2020, rodrigues2024, NAAL""")
+    mo.md("""<i> test_name</i>. The name of the assessment. Current assessments in dataframe: ARTIST, merk2020, rodrigues2024, NAAL, CALVI, WAN, VLAT, GGR, BRBF""")
     return
 
 
@@ -594,7 +672,59 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    mo.md("""<i> graph_types_ctl </i>. Our categorization of the item's cognitive task as understood from viewing the assessment material and matching items with the task coding schema presented in the assessment paper. This may or may not align with the assessment maker's understanding of the item. (i.e. the authors intended an item as "Identify averages", but as this was not in the assessment material, we coded the item as "Identify trends.")""")
+    mo.md(""" """)
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md("""<i> task_types_ctl </i>. Our categorization of the item's cognitive task as understood from viewing the assessment material and matching items with the task coding schema presented in the assessment paper. This may or may not align with the assessment maker's understanding of the item. (i.e. the authors intended an item as "Identify averages", but as this was not in the assessment material, we coded the item as "Identify trends.")""")
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md("""<i> task_types_comb </i>. A  set of task types that aims to standardize the different task type coding schemas across assessments into one universal schema. This schema was based on task_types_ctl, and not the questions themselves.""")
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(
+        """
+    <pre><i> find_value </i>. The "Find value" task involves identifying values within the graph. It does not differentiate between identifying extrema or multiple values. Examples: "How many of the scores are above 15?", "How many Facebook likes are there for the score of 1.6?"
+    """
+    )
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(
+        """
+    <pre><i> interpret_data </i>. The "Interpret data" task involves describing trends, distributions, and predictions based on the graph. Examples: "What is the relationship between Drama and Action movies?", "Which referencenorm underlies this table?"
+    """
+    )
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(
+        """
+    <pre><i> calculate_statistic </i>. The "Calculate statistic" task involves calculating averages, differences, and ranges. Examples: "What is the approximate average life expectancy on this group of planets?", "What was the price range of a barrel of oil in 2015?"
+    """
+    )
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md(
+        """
+    <pre><i> compare_groups </i>. The "Compare groups" task involves comparing one or more groups within the graph and their values, trends, interpretations, or other qualities. Examples: "Which of the treatments contributes to a larger decrease in the percentage of sick patients?", "Which season has more rain, the summer or the spring?"
+    """
+    )
     return
 
 
@@ -634,3 +764,4 @@ def _():
 
 if __name__ == "__main__":
     app.run()
+
