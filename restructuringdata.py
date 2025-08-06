@@ -227,12 +227,6 @@ def _(concat_dfs_completed, pd):
 
 @app.cell
 def _(concat_dfs_completed):
-    concat_dfs_completed.columns
-    return
-
-
-@app.cell
-def _(concat_dfs_completed):
     find_value = ['literacy', 'Suitable', 'Find Extremum', 'retrieve_value', 'Retrieve Value', 'max', 'min', 'level_1',
                  'find_extremum', 'find_clusters', 'intermediate', 'Understand & use data displays & representations', 'elementary', 'intersection', 'TextSearchExposition', 'Text Search', 'find_anomolies', 'Application, TextSearchExposition, ', 'Text SearchExposition, ']
     interpret_data = ['reasoning', 'Use statistics', 'Unsuitable', 'trend', 'Understand how to interpret data', 
