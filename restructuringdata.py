@@ -503,7 +503,7 @@ def _(alt, color, xaxis):
             title=chosen_title,
             scale=alt.Scale(scheme="paired")
         )
-    if color.value == "Graph type":
+    elif color.value == "Graph type":
         enc_data = "graph_types_ctl"
         encodings["color"] = alt.Color(
             field=enc_data,
@@ -511,7 +511,7 @@ def _(alt, color, xaxis):
             title=chosen_title,
             scale=alt.Scale(scheme="paired")
         )
-    if color.value == "Task type (og)":
+    elif color.value == "Task type (og)":
         enc_data = "task_types_ctl"
         encodings["color"] = alt.Color(
             field=enc_data,
@@ -519,7 +519,7 @@ def _(alt, color, xaxis):
             title=chosen_title,
             scale=alt.Scale(scheme="paired")
         )
-    if color.value == "Task type (comb)":
+    elif color.value == "Task type (comb)":
         enc_data = "task_types_comb"
         encodings["color"] = alt.Color(
             field=enc_data,
