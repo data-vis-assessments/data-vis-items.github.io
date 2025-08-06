@@ -218,7 +218,8 @@ def _(concat_dfs_completed, pd):
         if value == '100 % stacked bar chart':
             value = '100% stacked bar chart'
         return value
-
+        
+    concat_dfs_standardized = concat_dfs_completed.copy()
     concat_dfs_standardized['graph_types_ctl'] = concat_dfs_completed['graph_types_ctl'].apply(standardize_format)
 
     return
