@@ -205,7 +205,7 @@ def _(np, pd, remaining_dataframes):
     standardized_dfs = [standardize_answer_columns(df) for df in remaining_dataframes]
 
     concat_dfs_completed = pd.concat(standardized_dfs, ignore_index=True)
-    return (concat_dfs_complete,)
+    return (concat_dfs_completed,)
 
 
 @app.cell
