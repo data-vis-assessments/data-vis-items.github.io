@@ -404,6 +404,16 @@ def _(display, mo):
     mo.ui.table(display, selection=None)
     return
 
+@app.cell
+def _(filtered_df2, mo):
+    csv_download = mo.download(
+        data=filtered_df2.to_csv().encode("utf-8"),
+        filename="datavis_filtered.csv",
+        mimetype="text/csv",
+        label="Download CSV",
+    )
+    mo.hstack([csv_download], justify = 'center')
+    return
 
 @app.cell
 def _():
