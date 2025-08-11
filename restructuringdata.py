@@ -228,14 +228,14 @@ def _(concat_dfs_completed, pd):
 @app.cell
 def _(concat_dfs_completed):
     find_value = ['literacy', 'Suitable', 'Find Extremum', 'retrieve_value', 'Retrieve Value', 'max', 'min', 'level_1',
-                 'find_extremum', 'find_clusters', 'intermediate', 'Understand & use data displays & representations', 'elementary', 'intersection', 'TextSearchExposition', 'Text Search', 'find_anomolies', 'Application, TextSearchExposition, ', 'Text SearchExposition, ']
+             'find_extremum', 'find_clusters', 'intermediate', 'Understand & use data displays & representations', 'elementary', 'intersection', 'TextSearchExposition', 'Text Search', 'find_anomolies', 'Application, TextSearchExposition, ', 'Text SearchExposition, ']
     interpret_data = ['reasoning', 'Use statistics', 'Unsuitable', 'trend', 'Understand how to interpret data', 
                       'Understand data properties', 'Conceptual', 'find_correlations_trends',
                  'Find Correlations/Trends', 'Make Predictions', 'Application, Text Search']
     calculate_statistic = ['Aggregate data', 'Aggregate Values', 'Manipulate data', 'average', 'Computation, Text Search', 'trendComp',
-                          'determine_Range']
+                          'determine_Range', 'determine_range']
     compare_groups = ['make_comparisons', 'comprehensive', 'Understand statistics & psychometrics', 'Summarize & explain data', 'level_2', 'characterize_distribution', 'Make Comparisons', 'level_3']
-
+    
     def combine_tasks(row):
         task = row['task_types_ctl']
         if task in find_value:
@@ -300,7 +300,6 @@ def _(
                     no_tests,
                     unique_graphs,
                     unique_tasks_og,
-                    unique_tasks_ctl,
                     open_prop
                 ], justify = 'center', align = 'end'
             ),
@@ -356,6 +355,7 @@ def _(concat_dfs_complete, mo):
     default_tests = list(concat_dfs_complete['test_name'].unique())
     default_graphs= list(concat_dfs_complete['graph_types_ctl'].unique())
     default_tasks_ctl= list(concat_dfs_complete['task_types_comb'].unique())
+    default_ans_ctl= list(concat_dfs_complete['open_answer'].unique())
     test_select = mo.ui.multiselect(options=concat_dfs_complete['test_name'].unique(),
                                    label = 'Filter tests:',
                                     value = default_tests
@@ -366,7 +366,9 @@ def _(concat_dfs_complete, mo):
     task_select = mo.ui.multiselect(options=concat_dfs_complete['task_types_comb'].unique(),
                                     label = 'Filter tasks (comb):',
                                     value = default_tasks_ctl)
-    ##Another one here?
+    ans_select = mo.ui.multiselect(options=concat_dfs_complete['open_answer'].unique(),
+                                    label = 'Filter answer type:',
+                                    value = default_ans_ctl)
     return graph_select, task_select, test_select
 
 
@@ -387,14 +389,18 @@ def _(concat_dfs_complete, graph_select, task_select, test_select):
     else:
         filtered_df1_2 = filtered_df1
     if len(graph_select.value) > 0:
-        filtered_df2 = filtered_df1_2[filtered_df1_2['graph_types_ctl'].isin(graph_select.value)]
+        filtered_df2_2 = filtered_df1_2[filtered_df1_2['graph_types_ctl'].isin(graph_select.value)]
     else: 
-        filtered_df2 = filtered_df1_2 
+        filtered_df2_2 = filtered_df1_2 
+    if len(ans_select.value) > 0:
+        filtered_df2 = filtered_df2_2[filtered_df2_2['open_answer'].isin(ans_select.value)]
+    else: 
+        filtered_df2 = filtered_df2_2 
     start = ['item_ids', 'graph_url', 'open_answer', 'question']
     for i in range(1, 15):
         if not filtered_df2[f'answer_{i}'].isna().all():
             start.append(f'answer_{i}')
-    gen = ['task_types_ctl', 'graph_types_ctl', 'task_types', 'graph_types']
+    gen = ['task_types_ctl', 'graph_types_ctl']
     display = filtered_df2[start + gen]
     return display, filtered_df2
 
