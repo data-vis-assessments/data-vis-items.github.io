@@ -59,7 +59,13 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    mo.md("This dashboard is meant to enable easier comparison of items between assessments. Each item typically consists of a visualization, a question stem, and if multiple-choice, a series of answer choices. The Data Vis Explorer has collected items from ten assessments that have made their items publicly available into one filterable dataframe. These assessments are CALVI, WAN, BRBF, GGR, VLAT, HOLF, merk2020, rodrigues2024, ARTIST, and the NAAL. Features include the dataframe itself, descriptive statistics, and the option to visualize the filtered dataframe with a contingency table. A data dictionary is available at the end of the dashboard.")
+    mo.md("This dashboard is meant to enable easier comparison of items between assessments. Each item typically consists of a visualization, a question stem, and if multiple-choice, a series of answer choices. The Data Vis Explorer has collected items from ten assessments that have made their items publicly available into one filterable dataframe. These assessments are <b> CALVI, WAN, BRBF, GGR, VLAT, HOLF, merk2020, rodrigues2024, ARTIST, and the NAAL.</b>")
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md("Features include the dataframe itself, descriptive statistics, and the option to visualize the filtered dataframe with a contingency table. A data dictionary is available at the end of the dashboard.")
     return
 
 
