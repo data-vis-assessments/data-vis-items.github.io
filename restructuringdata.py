@@ -287,7 +287,6 @@ def _(
     test_select,
     total_items,
     unique_graphs,
-    unique_tasks_ctl,
     unique_tasks_og,
 ):
         mo.hstack(
