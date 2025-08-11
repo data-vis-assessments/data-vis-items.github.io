@@ -279,6 +279,7 @@ def _(mo):
 
 @app.cell
 def _(
+    ans_select,  # <- Added this missing dependency
     graph_select,
     mo,
     no_tests,
@@ -289,7 +290,7 @@ def _(
     unique_graphs,
     unique_tasks_og,
 ):
-        mo.hstack(
+    return mo.hstack(  # <- Added 'return' here
         [mo.vstack(
                 [mo.md('### Data Filters'), test_select, graph_select, task_select, ans_select]
             ),
@@ -300,11 +301,10 @@ def _(
                     unique_graphs,
                     unique_tasks_og,
                     open_prop
-                ], justify = 'center', align = 'end'
+                ], justify='center', align='end'
             ),
         ]
     )
-    return
 
 
 @app.cell
