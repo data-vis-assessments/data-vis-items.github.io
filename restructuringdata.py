@@ -290,9 +290,9 @@ def _(
     unique_tasks_ctl,
     unique_tasks_og,
 ):
-    mo.hstack(
+        mo.hstack(
         [mo.vstack(
-                [mo.md('### Data Filters'), test_select, graph_select, task_select]
+                [mo.md('### Data Filters'), test_select, graph_select, task_select, ans_select]
             ),
             mo.hstack(
                 [
