@@ -455,12 +455,15 @@ def _(mo):
 
 @app.cell
 def _(color, graph_select, mo, test_select, xaxis):
-    mo.hstack([mo.hstack(
-                [test_select, graph_select], justify = 'start'
-            ), mo.hstack(
-        [xaxis, color], justify = 'end', align = 'end')
-              ]
-               )
+    mo.hstack(
+        [mo.hstack([
+            mo.vstack([test_select, graph_select]),
+            mo.vstack([task_select, ans_select])
+        ], justify = 'start', align = 'start'),
+         mo.vstack(
+             [xaxis, color], justify = 'end', align = 'end'
+         )]
+    )
     return
 
 
@@ -581,61 +584,6 @@ def _(chosen_x, color, enc_data, filtered_df2, pd, show_table):
     elif show_table.value == 'False':
         showing = None
     showing
-    return
-
-
-@app.cell
-def _():
-    return
-
-
-@app.cell
-def _():
-    return
-
-
-@app.cell
-def _():
-    return
-
-
-@app.cell
-def _():
-    return
-
-
-@app.cell
-def _():
-    return
-
-
-@app.cell
-def _():
-    return
-
-
-@app.cell
-def _():
-    return
-
-
-@app.cell
-def _():
-    return
-
-
-@app.cell
-def _():
-    return
-
-
-@app.cell
-def _():
-    return
-
-
-@app.cell
-def _():
     return
 
 
