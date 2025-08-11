@@ -59,7 +59,7 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    mo.md("This dashboard is meant to enable easier comparison of items between assessments. Each item typically consists of a visualization, a question stem, and if multiple-choice, a series of answer choices. The Data Vis Explorer has collected items from nine assessments that have made their items publicly available into one filterable dataframe. Features include the dataframe itself, descriptive statistics, and the option to visualize the filtered dataframe with a contingency table. A data dictionary is available at the end of the dashboard.")
+    mo.md("This dashboard is meant to enable easier comparison of items between assessments. Each item typically consists of a visualization, a question stem, and if multiple-choice, a series of answer choices. The Data Vis Explorer has collected items from ten assessments that have made their items publicly available into one filterable dataframe. These assessments are CALVI, WAN, BRBF, GGR, VLAT, HOLF, merk2020, rodrigues2024, ARTIST, and the NAAL. Features include the dataframe itself, descriptive statistics, and the option to visualize the filtered dataframe with a contingency table. A data dictionary is available at the end of the dashboard.")
     return
 
 
@@ -176,7 +176,7 @@ def _(concat_dfs_expanded_clean, re):
 
 @app.cell
 def _(concat_dfs_new, data_dir, pd):
-    remaining_files = ['CALVI.csv', 'GGR.csv', 'VLAT.csv', 'WAN.csv', 'BRBF.csv']
+    remaining_files = ['CALVI.csv', 'GGR.csv', 'VLAT.csv', 'WAN.csv', 'BRBF.csv', 'HOLF.csv']
     remaining_dataframes = [concat_dfs_new]
 
     for file in remaining_files:
@@ -410,7 +410,7 @@ def _(filtered_df2, mo):
         data=filtered_df2.to_csv().encode("utf-8"),
         filename="datavis_filtered.csv",
         mimetype="text/csv",
-        label="Download CSV",
+        label="Download filtered data (CSV)",
     )
     mo.hstack([csv_download], justify = 'center')
     return
