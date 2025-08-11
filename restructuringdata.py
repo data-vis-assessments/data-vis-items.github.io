@@ -290,7 +290,7 @@ def _(
     unique_graphs,
     unique_tasks_og,
 ):
-    return mo.hstack(  # <- Added 'return' here
+    mo.hstack(  # <- Added 'return' here
         [mo.vstack(
                 [mo.md('### Data Filters'), test_select, graph_select, task_select, ans_select]
             ),
@@ -305,6 +305,7 @@ def _(
             ),
         ]
     )
+    return
 
 
 @app.cell
