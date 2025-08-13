@@ -170,7 +170,8 @@ def _():
 
 @app.cell
 def _(concat_dfs_expanded_clean, re):
-    static_columns = ['test_name', 'item_ids', 'graph_types', 'graph_types_ctl', 'task_types', 'task_types_ctl', 'graph_url', 'question', 'open_answer']
+    static_columns = ['test_name', 'item_ids', 'graph_types', 'graph_types_ctl', 'task_types', 'task_types_ctl', 
+                      'graph_url', 'question', 'open_answer', 'prop_correct']
     flexible_columns = []
     for column in concat_dfs_expanded_clean.columns:
         if re.search(r'^answer_\d+$', column):
@@ -362,6 +363,7 @@ def _(concat_dfs_complete, mo):
     default_graphs= list(concat_dfs_complete['graph_types_ctl'].unique())
     default_tasks_ctl= list(concat_dfs_complete['task_types_comb'].unique())
     default_ans_ctl= list(concat_dfs_complete['open_answer'].unique())
+
     test_select = mo.ui.multiselect(options=concat_dfs_complete['test_name'].unique(),
                                    label = 'Filter tests:',
                                     value = default_tests
@@ -372,37 +374,63 @@ def _(concat_dfs_complete, mo):
     task_select = mo.ui.multiselect(options=concat_dfs_complete['task_types_comb'].unique(),
                                     label = 'Filter tasks (comb):',
                                     value = default_tasks_ctl)
+    hum_select = mo.ui.multiselect(options=['available', 'unavailable'],
+                                    label = 'Filter responses available:',
+                                    value = ['available', 'unavailable'])
     ans_select = mo.ui.multiselect(options=concat_dfs_complete['open_answer'].unique(),
                                     label = 'Filter answer type:',
                                     value = default_ans_ctl)
-    return graph_select, task_select, test_select
+    ##Another one here?
+    return ans_select, graph_select, hum_select, task_select, test_select
 
 
 @app.cell
-def _():
+def _(hum_select):
+    hum_select.value
     return
 
 
 @app.cell
-def _(concat_dfs_complete, graph_select, task_select, test_select):
+def _(
+    ans_select,
+    concat_dfs_complete,
+    graph_select,
+    hum_select,
+    prop_correct,
+    task_select,
+    test_select,
+):
     filtered_df1 = concat_dfs_complete
+
     if len(test_select.value) > 0:
         filtered_df1 = concat_dfs_complete[concat_dfs_complete['test_name'].isin(test_select.value)]
     else:
         filtered_df1 = concat_dfs_complete
+    
     if len(task_select.value)> 0:
         filtered_df1_2 = filtered_df1[filtered_df1['task_types_comb'].isin(task_select.value)]
     else:
         filtered_df1_2 = filtered_df1
+    
     if len(graph_select.value) > 0:
         filtered_df2_2 = filtered_df1_2[filtered_df1_2['graph_types_ctl'].isin(graph_select.value)]
     else: 
         filtered_df2_2 = filtered_df1_2 
+    
     if len(ans_select.value) > 0:
-        filtered_df2 = filtered_df2_2[filtered_df2_2['open_answer'].isin(ans_select.value)]
+        filtered_df3_2 = filtered_df2_2[filtered_df2_2['open_answer'].isin(ans_select.value)]
     else: 
-        filtered_df2 = filtered_df2_2 
-    start = ['item_ids', 'graph_url', 'open_answer', 'question']
+        filtered_df3_2 = filtered_df2_2 
+    
+    if (len(hum_select.value) > 0) & (hum_select.value == 'available'):
+        filtered_df2 = filtered_df3_2[filtered_df3_2[prop_correct].notna]
+    elif (len(hum_select.value) > 0) & (hum_select.value == 'unavailable'):
+        filtered_df2 = filtered_df3_2[filtered_df3_2[prop_correct].isna]
+    elif (len(hum_select.value) == 0) | (hum_select.value == ['available', 'unavailable']):
+        filtered_df2 = filtered_df3_2
+
+
+    start = ['item_ids', 'graph_url', 'open_answer', 'prop_correct', 'question']
     for i in range(1, 15):
         if not filtered_df2[f'answer_{i}'].isna().all():
             start.append(f'answer_{i}')
