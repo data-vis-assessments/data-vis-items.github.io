@@ -299,8 +299,9 @@ def _(
 ):
     mo.hstack(  # <- Added 'return' here
         [mo.vstack(
-                [mo.md('### Data Filters'), test_select, graph_select, task_select, ans_select]
+                [mo.md('### Data Filters'), test_select, graph_select, task_select]
             ),
+     mo.vstack([mo.md('. '), hum_select, ans_select]),
             mo.hstack(
                 [
                     total_items,
@@ -382,12 +383,6 @@ def _(concat_dfs_complete, mo):
                                     value = default_ans_ctl)
     ##Another one here?
     return ans_select, graph_select, hum_select, task_select, test_select
-
-
-@app.cell
-def _(hum_select):
-    hum_select.value
-    return
 
 
 @app.cell
