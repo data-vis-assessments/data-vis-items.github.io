@@ -417,9 +417,9 @@ def _(
     else: 
         filtered_df3_2 = filtered_df2_2 
     
-    if (len(hum_select.value) > 0) & (hum_select.value == 'available'):
+    if (len(hum_select.value) > 0) & (hum_select.value == ['available']):
         filtered_df2 = filtered_df3_2[filtered_df3_2[prop_correct].notna]
-    elif (len(hum_select.value) > 0) & (hum_select.value == 'unavailable'):
+    elif (len(hum_select.value) > 0) & (hum_select.value == ['unavailable']):
         filtered_df2 = filtered_df3_2[filtered_df3_2[prop_correct].isna]
     elif (len(hum_select.value) == 0) | (hum_select.value == ['available', 'unavailable']):
         filtered_df2 = filtered_df3_2
