@@ -418,12 +418,11 @@ def _(
         filtered_df3_2 = filtered_df2_2 
     
     if len(hum_select.value) == 1:
-        if 'available' in hum_select.value:
-            filtered_df2 = filtered_df3_2[filtered_df3_2[prop_correct].notna()]
-        elif 'unavailable' in hum_select.value:
-            filtered_df2 = filtered_df3_2[filtered_df3_2[prop_correct].isna()]
+        if hum_select.value == ['available']:
+            filtered_df2 = filtered_df3_2[filtered_df3_2['prop_correct'].notna()]
+        elif hum_select.value == ['unavailable']:
+            filtered_df2 = filtered_df3_2[filtered_df3_2['prop_correct'].isna()]
     else:
-        # Empty list, both selected, or any other case → show all
         filtered_df2 = filtered_df3_2
 
 
