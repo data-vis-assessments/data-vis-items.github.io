@@ -142,7 +142,7 @@ def _(ast, concat_dfs, max_len):
             parsed = ast.literal_eval(answers)
             for i in range(max_len):
                 if i < len(parsed):
-                    row[f'answer_{i+1}'] = parsed[i]
+                    row[f'answer_choice_{i+1}'] = parsed[i]
         else:
             row['open_answer'] = 'open-answer'
         return row
