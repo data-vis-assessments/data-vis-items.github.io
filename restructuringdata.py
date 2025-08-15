@@ -286,33 +286,49 @@ def _(mo):
 
 @app.cell
 def _(
-    ans_select,  # <- Added this missing dependency
-    graph_select,
     mo,
     no_tests,
     open_prop,
-    task_select,
-    test_select,
     total_items,
     unique_graphs,
+    unique_images,
+    unique_questions,
     unique_tasks_og,
 ):
-    mo.hstack(  # <- Added 'return' here
-        [mo.vstack(
-                [mo.md('### Data Filters'), test_select, graph_select, task_select]
-            ),
-     mo.vstack([mo.md('. '), hum_select, ans_select]),
-            mo.hstack(
+    mo.hstack(
                 [
                     total_items,
                     no_tests,
                     unique_graphs,
                     unique_tasks_og,
+                    unique_images,
+                    unique_questions,
                     open_prop
                 ], justify='center', align='end'
+            )
+    return
+
+
+@app.cell
+def _(mo):
+    mo.md('### Data Filters')
+    return
+
+
+@app.cell
+def _(ans_select, graph_select, hum_select, mo, task_select, test_select):
+    mo.hstack(  # <- Added 'return' here
+        [mo.vstack(
+                [test_select, graph_select, task_select]
             ),
+     mo.vstack([hum_select, ans_select])
         ]
     )
+    return
+
+
+@app.cell
+def _():
     return
 
 
@@ -330,7 +346,7 @@ def _(filtered_df2, mo):
         value=f"{len(filtered_df2['test_name'].unique()):,.0f}",
     )
     unique_graphs = mo.stat(
-        label="Unique graphs",
+        label="Unique graph types",
         bordered=True,
         value=f"{len(filtered_df2['graph_types_ctl'].unique()):,.0f}",
     )
@@ -347,15 +363,25 @@ def _(filtered_df2, mo):
     open_prop = mo.stat(label = "Proportion open-answer", 
                         bordered = True,
                         value = f"{(sum(filtered_df2['open_answer'] == 'open-answer')/len(filtered_df2))*100:,.0f}%")
+    unique_images = mo.stat(label = "Unique images", 
+                        bordered = True,
+                        value = f"{len(filtered_df2['graph_url'].unique()):,.0f}"
+                           )
+    unique_questions = mo.stat(label = "Unique questions", 
+                        bordered = True,
+                        value = f"{len(filtered_df2['question'].unique()):,.0f}"
+                           )
+
     return (
         no_tests,
         open_prop,
         total_items,
         unique_graphs,
-        unique_tasks_ctl,
+        unique_images,
+        unique_questions,
         unique_tasks_og,
     )
-
+    
 
 @app.cell
 def _(concat_dfs_complete, mo):
