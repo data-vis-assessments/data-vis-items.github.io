@@ -147,7 +147,8 @@ def _(ast, concat_dfs, max_len):
             row['open_answer'] = 'open-answer'
         return row
     concat_dfs_expanded = concat_dfs.apply(expand_answers, axis = 1)
-
+    print('expansion done!')
+    concat_dfs_expanded
     return (concat_dfs_expanded,)
 
 
