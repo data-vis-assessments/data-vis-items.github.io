@@ -3,7 +3,7 @@ import marimo
 __generated_with = "0.14.13"
 app = marimo.App(width="medium")
 
-
+##Importing packages
 @app.cell
 def _():
     import marimo as mo
@@ -15,7 +15,7 @@ def _():
     import re
     return alt, ast, mo, np, pd, re
 
-
+#Title
 @app.cell
 def _(mo):
     mo.center(mo.md('# Data Viz Explorer'))
@@ -26,7 +26,7 @@ def _(mo):
 def _():
     return
 
-
+##Contact info
 @app.cell
 def _(mo):
     mo.center(mo.md('arnavv@stanford.edu, kushinm@stanford.edu, averyyue@stanford.edu'))
@@ -38,7 +38,7 @@ def _(mo):
     mo.center(mo.md('[Stanford University Cognitive Tools Lab](https://cogtoolslab.github.io/about.html)'))
     return
 
-
+##Intro
 @app.cell
 def _(mo):
     mo.md("""## Introduction to the dashboard""")
@@ -74,7 +74,7 @@ def _():
     ###This next section will not show on ui. It loads in and restructures the csv. 
     return
 
-
+##Load in new assessments
 @app.cell
 def _(mo, pd):
     data_dir = "https://raw.githubusercontent.com/data-vis-assessments/data-vis-items.github.io/refs/heads/main/public/"
@@ -147,8 +147,7 @@ def _(ast, concat_dfs, max_len):
             row['open_answer'] = 'open-answer'
         return row
     concat_dfs_expanded = concat_dfs.apply(expand_answers, axis = 1)
-    print('expansion done!')
-    concat_dfs_expanded
+    
     return (concat_dfs_expanded,)
 
 
@@ -179,6 +178,7 @@ def _(concat_dfs_expanded_clean, re):
             flexible_columns.append(column)
     all_columns = static_columns + flexible_columns
     concat_dfs_new = concat_dfs_expanded_clean[all_columns]
+    concat_dfs_new
     return (concat_dfs_new,)
 
 
