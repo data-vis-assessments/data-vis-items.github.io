@@ -458,8 +458,8 @@ def _(
 
     start = ['item_ids', 'graph_url', 'open_answer', 'prop_correct', 'question']
     for i in range(1, 15):
-        if not filtered_df2[f'answer_{i}'].isna().all():
-            start.append(f'answer_{i}')
+        if not filtered_df2[f'answer_choice_{i}'].isna().all():
+            start.append(f'answer_choice_{i}')
     gen = ['task_types_ctl', 'graph_types_ctl']
     display = filtered_df2[start + gen]
     return display, filtered_df2
