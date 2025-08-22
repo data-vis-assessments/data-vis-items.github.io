@@ -207,7 +207,7 @@ def _(np, pd, remaining_dataframes):
         df_copy = df.copy()
     
         for i in range(1, 16):
-            col_name = f'answer_{i}'
+            col_name = f'answer_choice_{i}'
             if col_name not in df_copy.columns:
                 df_copy[col_name] = np.nan
     
@@ -924,7 +924,7 @@ def _(mo):
 
 @app.cell
 def _(mo):
-    mo.md("""<i> answer_# </i>. The multiple choice answer for the item's question, if it applies.""")
+    mo.md("""<i> answer_choice_# </i>. The multiple choice answer for the item's question, if it applies.""")
     return
 
 
