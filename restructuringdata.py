@@ -608,11 +608,13 @@ def _(alt, color, xaxis):
 
 
 @app.cell
-def _(bar_chart, display_type, pie_chart):
+def _(bar_chart, display_type, heatmap_final, pie_chart):
     if display_type.value == 'Bar chart':
         display_chart = bar_chart
-    else:
+    elif display_type.value == 'Pie chart':
         display_chart = pie_chart
+    else:
+        display_chart = heatmap_final
     display_chart
     return
 
@@ -626,7 +628,7 @@ def _():
 
 @app.cell
 def _(mo):
-    display_type = mo.ui.dropdown(options=["Bar chart", 'Pie chart'], label="Type of display", value = 'Bar chart')
+    display_type = mo.ui.dropdown(options=["Bar chart", 'Pie chart', 'Heatmap'], label="Type of display", value = 'Bar chart')
     show_table = mo.ui.dropdown(options=['True', 'False'], label="Show contingency table?", value = 'False')
     mo.hstack([display_type, show_table], justify = 'center', gap = 3)
     return display_type, show_table
@@ -641,6 +643,161 @@ def _(chosen_x, color, enc_data, filtered_df2, pd, show_table):
     elif show_table.value == 'False':
         showing = None
     showing
+    return
+
+
+@app.cell
+def _(final_chart):
+    print("Chart object type:", type(final_chart))
+    print("Chart object:", final_chart)
+
+    # Try to convert to dict to see the spec
+    try:
+        chart_dict = final_chart.to_dict()
+        print("Chart dict keys:", chart_dict.keys())
+    except Exception as e:
+        print("Error converting to dict:", e)
+    return
+
+
+@app.cell
+def _(alt, color, filtered_df2, mo, pd, xaxis):
+    if xaxis.value == 'Graph type':
+        x = 'graph_types_ctl'
+        x_title = 'Graph type'
+    elif xaxis.value == 'Assessment':
+        x = 'test_name'
+        x_title = 'Assessment name'
+    elif xaxis.value == 'Task type (og)':
+        x = 'task_types_ctl' # Note: was 'task_types' - make sure this matches your DataFrame
+        x_title = 'Task type (original)'
+    elif xaxis.value == 'Task type (comb)':
+        x = 'task_types_comb'
+        x_title = 'Task type (combined)'
+    else:
+        # Add a default case
+        x = 'graph_types_ctl'
+        x_title = 'Graph type'
+    if color.value == 'None':
+        chosen_y = None
+        y_title = 'Frequency'
+    elif color.value == "open-answer":
+        chosen_y = "open_answer"
+        y_title = "Open Answer"
+    elif color.value == "Graph type":
+        chosen_y = "graph_types_ctl"
+        y_title = "Graph Type"
+    elif color.value == "Task type (og)":
+        chosen_y = "task_types_ctl"
+        y_title = "Task Type (Original)"
+    elif color.value == "Task type (comb)":
+        chosen_y = "task_types_comb"
+        y_title = "Task Type (Combined)"
+    elif color.value == "Assessment":
+        chosen_y = "test_name"
+        y_title = "Assessment"
+    # Create the chart based on whether we have one or two variables
+    if chosen_y is None:
+        # Single variable frequency - create a simple bar chart
+        freq_data = filtered_df2[x].value_counts().reset_index()
+        freq_data.columns = [x, 'count']
+   
+        final_chart = alt.Chart(freq_data).mark_bar().encode(
+            x=alt.X(f'{x}:O', title=x_title, axis=alt.Axis(labelAngle=-45)),
+            y=alt.Y('count:Q', title='Count'),
+            tooltip=[alt.Tooltip(f'{x}:O', title=x_title),
+                    alt.Tooltip('count:Q', title='Count')]
+        ).properties(
+            width=600,
+            height=400,
+            title=f'Frequency of {x_title}'
+        )
+    else:
+        # Two variables - create heatmap
+        # Create crosstab for the selected variables
+        heatmap_data = pd.crosstab(filtered_df2[chosen_y], filtered_df2[x])
+   
+        # Convert to long format for Altair
+        heatmap_long = heatmap_data.reset_index().melt(id_vars=chosen_y,
+                                                       var_name=x,
+                                                       value_name='freq')
+   
+        # Handle empty data case
+        if len(heatmap_long) == 0:
+            print("Warning: No data available for the selected combination")
+            final_chart = alt.Chart(pd.DataFrame({'x': [0], 'y': [0], 'text': ['No Data']})).mark_text(
+                fontSize=20, color='gray'
+            ).encode(
+                x=alt.value(300),
+                y=alt.value(200),
+                text='text:N'
+            ).properties(width=600, height=400)
+        else:
+            # Calculate 95th percentile for robust color scaling
+            percentile_95 = heatmap_long['freq'].quantile(0.95)
+            max_count = heatmap_long['freq'].max()
+       
+            # Use percentile_95 or 30, whichever is smaller, for better color scaling
+            color_max = min(percentile_95, 30) if percentile_95 > 0 else max_count
+       
+            # Create base chart
+            base = alt.Chart(heatmap_long)
+       
+            # Create the heatmap rectangles
+            rect = base.mark_rect().encode(
+                x=alt.X(f'{x}:O',
+                        title=x_title,
+                        axis=alt.Axis(labelAngle=-45)),
+                y=alt.Y(f'{chosen_y}:O',
+                        title=y_title),
+                color=alt.Color('freq:Q',
+                               scale=alt.Scale(scheme='blues',
+                                             domain=[0, color_max]),
+                               legend=alt.Legend(title='Count')),
+                stroke=alt.value('white'),
+                strokeWidth=alt.value(1),
+                tooltip=[alt.Tooltip(f'{x}:O', title=x_title),
+                        alt.Tooltip(f'{chosen_y}:O', title=y_title),
+                        alt.Tooltip('freq:Q', title='Count')]
+            )
+       
+            # Create the text overlay
+            text = base.mark_text(
+                fontSize=12,
+                fontWeight='bold'
+            ).encode(
+                x=alt.X(f'{x}:O'),
+                y=alt.Y(f'{chosen_y}:O'),
+                text=alt.Text('freq:Q'),
+                color=alt.condition(alt.datum.count > 5, alt.value('white'), alt.value('gray'))
+            )
+       
+            # Combine rectangles and text
+            final_chart = alt.layer(rect, text).properties(
+                width=650,
+                height=450,
+                title=alt.TitleParams(
+                    text=f'{y_title} × {x_title} Distribution',
+                    fontSize=16,
+                    fontWeight='bold'
+                )
+            )
+    heatmap_final = mo.ui.altair_chart(final_chart)
+    return final_chart, heatmap_final
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
+    return
+
+
+@app.cell
+def _():
     return
 
 
@@ -779,4 +936,3 @@ def _():
 
 if __name__ == "__main__":
     app.run()
-
