@@ -176,6 +176,10 @@ def _(concat_dfs_expanded_clean, re):
     for column in concat_dfs_expanded_clean.columns:
         if re.search(r'^answer_\d+$', column):
             flexible_columns.append(column)
+            print('column found!')
+        else:
+            print('no column :(')
+    print(flexible_columns)
     all_columns = static_columns + flexible_columns
     concat_dfs_new = concat_dfs_expanded_clean[all_columns]
     concat_dfs_new
