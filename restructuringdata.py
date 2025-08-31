@@ -240,6 +240,8 @@ def _(concat_dfs_completed, pd):
 def _(concat_dfs_completed, data_dir):
     recoded_name = data_dir + 'recoded_questions.csv'
     recoded_questions = pd.read_csv(recoded_name)
+    concat_dfs_completed['question'] = concat_dfs_completed['question'].str.strip()
+    recoded_questions['question'] = recoded_questions['question'].str.strip()
     concat_dfs_complete=pd.merge(recoded_questions, concat_dfs_standardized, on = "question", how = "right")
     return (concat_dfs_complete,)
 
