@@ -237,31 +237,10 @@ def _(concat_dfs_completed, pd):
 
 
 @app.cell
-def _(concat_dfs_completed):
-    find_value = ['literacy', 'Suitable', 'Find Extremum', 'retrieve_value', 'Retrieve Value', 'max', 'min', 'level_1',
-             'find_extremum', 'find_clusters', 'intermediate', 'Understand & use data displays & representations', 'elementary', 'intersection', 'TextSearchExposition', 'Text Search', 'find_anomolies', 'Application, TextSearchExposition, ', 'Text SearchExposition, ']
-    interpret_data = ['reasoning', 'Use statistics', 'Unsuitable', 'trend', 'Understand how to interpret data', 
-                      'Understand data properties', 'Conceptual', 'find_correlations_trends',
-                 'Find Correlations/Trends', 'Make Predictions', 'Application, Text Search']
-    calculate_statistic = ['Aggregate data', 'Aggregate Values', 'Manipulate data', 'average', 'Computation, Text Search', 'trendComp',
-                          'determine_Range', 'determine_range']
-    compare_groups = ['make_comparisons', 'comprehensive', 'Understand statistics & psychometrics', 'Summarize & explain data', 'level_2', 'characterize_distribution', 'Make Comparisons', 'level_3']
-    
-    def combine_tasks(row):
-        task = row['task_types_ctl']
-        if task in find_value:
-            row['task_types_comb'] = 'find_value'
-        elif task in interpret_data:
-            row['task_types_comb'] = 'interpret_data'
-        elif task in calculate_statistic:
-            row['task_types_comb'] = 'calculate_statistic'
-        elif task in compare_groups:
-            row['task_types_comb'] = 'compare_groups'
-        else:
-            print(row['question'])
-            print(task)
-        return row
-    concat_dfs_complete=concat_dfs_standardized.apply(combine_tasks, axis = 1)
+def _(concat_dfs_completed, data_dir):
+    recoded_name = data_dir + 'recoded_questions.csv'
+    recoded_questions = pd.read_csv(recoded_name)
+    concat_dfs_complete=pd.merge(recoded_questions, concat_dfs_standardized, on = "question")
     return (concat_dfs_complete,)
 
 
